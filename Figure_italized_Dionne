@@ -1,0 +1,112 @@
+Here is way to do italics in plots..  library(ggtext)
+
+p = EnhancedVolcano(toptable = result_BL, 
+
+                    lab ="", 
+
+                    x = 'Diff', 
+
+                    y = 'p.value', 
+
+                    ylab = bquote(~-Log[10] ~ italic(P)),
+
+                    title="BL Differences of High Bleeders vs Low Bleeders", 
+
+                    #title = "Volcano plot",
+
+                    subtitle = "", #bquote(italic(EnhancedVolcano)),
+
+                    caption =  "",#paste0("total = ", nrow(toptable), " variables"),
+
+                    pCutoff = 0.05,   
+
+                    FCcutoff = .5,
+
+                    legendLabels = c("NS", expression(Log[2] ~ FC), expression(italic(p)-value), expression(italic(p)-value ~ and ~ log[2] ~ FC)),
+
+                    legendLabSize = 18)
+ 
+# Add custom text using ggplot2's annotate
+
+p + annotate("text", x = -2.99, y = 13.5, label = "Downregulated in \n High Bleeders", color = "black", size = 8, fontface = "bold")  + 
+
+    annotate("text", x = 3, y = 13.5, label = "Upregulated in High \n   Bleeders", color = "black", size = 8, fontface = "bold")  +
+
+    theme(plot.title = ggplot2::element_text(hjust=0.5, size =24,margin = ggplot2::margin(b = -20)),
+
+          axis.title.x = element_text(size=24),
+
+          axis.title.y = element_text(size=24)
+
+          )
+
+ 
+Here's another way using  paste  library(ggpubr)
+
+library(ggtext)
+ 
+for(i in 1:length(glist)){
+
+# i= 7
+
+    p.sub  <- p.sum %>% filter(Genus==as.character(glist[[i]]))
+
+    plist.sub  <- plist %>%  filter(Genus==as.character(glist[[i]]))
+
+    gtitle  <- paste0(glist[i])
+
+    p.sub  <- p.sum %>% filter(Genus==as.character(glist[[i]]))
+
+    plist.sub  <- plist %>%  filter(Genus==as.character(glist[[i]]))
+
+    gtitle  <- paste0(glist[i])
+
+    dat    <- df.sum %>% filter(Genus==as.character(glist[[i]]))
+
+    g= ggplot(dat, aes(x=Time2, y=MN, group=GrpCode, color=GrpCode)) +
+
+                geom_line(linewidth=1)  +
+
+                geom_point(pch=19,size=8) +
+
+                geom_errorbar(aes(ymin=MN - SE, ymax=MN + SE), 
+
+                              width = 0.2,  # Width of the error bar caps
+
+                              linewidth = 1,   # Increase this value for thicker error bars
+
+                position=position_dodge(0.05)) +
+
+                labs(title=gtitle,subtitle = paste0(" *p*(High Bleeders vs Low Bleeders at BL) = ",round(p.sub$pUBL,3), 
+
+                                    " <br> *p*(High Bleeders BL vs W4) = ",round(p.sub$pUH,3)),
+
+                     y = paste0("Relative Abundance (%)")) +
+
+                scale_x_discrete(labels = c("Low \nBleeders \nBaseline", "Low\nBleeders\nWeek 4", "High\n Bleeders\nBaseline", "High\nBleeders\nWeek 4")) +
+
+                theme_classic() + theme(text=element_text(family="Arial", size=14),
+
+                                        legend.position="none", 
+
+                                        plot.title = element_markdown(size =24, face="bold.italic"),
+
+                                        plot.subtitle = element_markdown(size=20),
+
+                                        axis.text.x   = element_text(size =20), #element_blank(),#
+
+                                        axis.text.y   = element_text(size =16),
+
+                                        axis.title.x  = element_blank(),#element_text(size =20),
+
+                                        axis.title.y  = element_text(size =20),
+
+                                        legend.title  = element_text(size=20))
+
+    print(g)
+
+    #ggsave(filename = paste0(glist[i],'.png', sep=''), path=pathout, plot=g, width =7, height = 7,units="in", dpi=600)
+
+  }
+
+ 
